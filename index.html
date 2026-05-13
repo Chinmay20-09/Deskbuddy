@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>DeskBuddy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style/style.css" />
+</head>
+<body>
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="logo">D</div>
+    <button class="nav-btn active" id="nav-dash" onclick="showPage('dash')" title="Dashboard">🏠</button>
+    <button class="nav-btn" id="nav-focus" onclick="showPage('focus')" title="Focus">🎯</button>
+    <button class="nav-btn" id="nav-memory" onclick="showPage('memory')" title="Memory">🧠</button>
+    <button class="nav-btn" id="nav-settings" onclick="showPage('settings')" title="Settings">⚙️</button>
+    <div class="nav-spacer"></div>
+    <div class="live-dot" title="Tracking active"></div>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <main class="main" id="main">
+
+    <!-- HEADER -->
+    <div class="header">
+      <div class="header-left">
+        <div class="header-title" id="page-title">Dashboard</div>
+        <div class="header-sub" id="page-sub">Your focus companion is watching</div>
+      </div>
+      <div class="header-right">
+        <span class="tag" id="state-tag">— —</span>
+        <span class="tag tag-teal" id="session-tag">0m session</span>
+      </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="tabs" id="tabs-bar"></div>
+
+    <!-- DASHBOARD PAGE -->
+    <div class="page active grid" id="page-dash">
+
+      <!-- Avatar -->
+      <div class="card avatar-card" id="avatar-card">
+        <div class="avatar-face" id="avatar-face">😊</div>
+        <div class="avatar-name">Buddy</div>
+        <div class="avatar-state" id="avatar-state-text">Observing your workflow…</div>
+        <div class="avatar-speech" id="avatar-speech">Getting to know you…</div>
+      </div>
+
+      <!-- Focus Ring -->
+      <div class="card focus-card-layout">
+        <div class="section-label">Focus Score</div>
+        <div class="focus-ring-wrap">
+          <svg class="focus-ring-svg" width="130" height="130" viewBox="0 0 130 130">
+            <circle cx="65" cy="65" r="52" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="10"/>
+            <circle cx="65" cy="65" r="52" fill="none" stroke="var(--accent)" stroke-width="10"
+              stroke-linecap="round" stroke-dasharray="326.7" id="focus-ring-circle"
+              stroke-dashoffset="326.7" transform="rotate(-90 65 65)"
+              class="focus-ring-transition"/>
+            <text x="65" y="60" text-anchor="middle" fill="var(--text)" font-family="Syne,sans-serif" font-size="24" font-weight="700" id="focus-score-text">0</text>
+            <text x="65" y="78" text-anchor="middle" fill="var(--text3)" font-family="DM Sans,sans-serif" font-size="11">/ 100</text>
+          </svg>
+        </div>
+        <div>
+          <div class="focus-bar-label">
+            <span class="streak-text">Streak</span>
+            <span class="streak-value" id="streak-label">0 min</span>
+          </div>
+          <div class="focus-bar-track">
+            <div class="focus-bar-fill streak-bar-fill" id="streak-bar"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="card">
+        <div class="section-label">Today</div>
+        <div class="metric-grid">
+          <div class="metric">
+            <div class="metric-label">Focused</div>
+            <div class="metric-value metric-green" id="stat-focused">0m</div>
+            <div class="metric-sub">productive time</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Switches</div>
+            <div class="metric-value metric-amber" id="stat-switches">0</div>
+            <div class="metric-sub">app switches</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Idle</div>
+            <div class="metric-value metric-text2" id="stat-idle">0m</div>
+            <div class="metric-sub">away time</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Sessions</div>
+            <div class="metric-value metric-teal" id="stat-sessions">0</div>
+            <div class="metric-sub">focus blocks</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Active App Simulator -->
+      <div class="card card-lg">
+        <div class="section-label">Active App Simulator — click to switch context</div>
+        <div class="app-sim" id="app-sim"></div>
+        <div class="active-app-info">
+          <span>Currently tracking:</span>
+          <span class="active-app-name" id="active-app-label">—</span>
+          <span class="tag active-app-type-tag" id="active-app-type">—</span>
+        </div>
+      </div>
+
+      <!-- Focus History -->
+      <div class="card">
+        <div class="section-label">Focus History (last 8 mins)</div>
+        <div class="chart-wrap" id="focus-chart"></div>
+      </div>
+
+      <!-- Activity Feed -->
+      <div class="card card-full">
+        <div class="section-label">Recent Activity</div>
+        <div class="feed" id="activity-feed">
+          <div class="no-activity">No activity yet — start clicking apps above</div>
+        </div>
+      </div>
+
+    </div><!-- /dash page -->
+
+    <!-- FOCUS PAGE -->
+    <div class="page grid" id="page-focus">
+      <div class="card card-full">
+        <div class="section-label">Focus Session</div>
+        <div class="focus-session-layout">
+          <div class="timer-section">
+            <div class="timer-display" id="timer-display">25:00</div>
+            <div class="timer-label" id="timer-label">Pomodoro ready</div>
+          </div>
+          <div class="control-row">
+            <button class="btn btn-accent" onclick="startPomodoro()">▶ Start Focus</button>
+            <button class="btn" onclick="resetPomodoro()">↺ Reset</button>
+          </div>
+        </div>
+        <div class="focus-bar-track focus-bar-track-small">
+          <div class="focus-bar-fill pomodoro-bar-fill" id="pomodoro-bar"></div>
+        </div>
+      </div>
+      <div class="card card-lg">
+        <div class="section-label">Weekly Streaks</div>
+        <div class="streak-row" id="weekly-streaks"></div>
+      </div>
+      <div class="card">
+        <div class="section-label">Focus Level</div>
+        <div class="focus-level-center">
+          <div class="focus-emoji" id="focus-emoji-big">😊</div>
+          <div class="focus-state" id="focus-state-big">Neutral</div>
+          <div class="focus-desc" id="focus-desc-big">Waiting to observe…</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MEMORY PAGE -->
+    <div class="page grid" id="page-memory">
+      <div class="card card-full">
+        <div class="section-label">Buddy's Memories</div>
+        <div class="memory-list" id="memory-list">
+          <div class="no-memories">No memories yet — use DeskBuddy for a while to build them</div>
+        </div>
+        <div class="control-row memory-controls">
+          <button class="btn btn-sm" onclick="clearMemories()">🗑 Clear all memories</button>
+        </div>
+      </div>
+      <div class="card card-full">
+        <div class="section-label">Achievements</div>
+        <div class="streak-row" id="achievements-list">
+          <div class="no-achievements">Complete focus sessions to earn achievements</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETTINGS PAGE -->
+    <div class="page grid" id="page-settings">
+      <div class="card card-full">
+        <div class="section-label">Preferences</div>
+        <div class="settings-row">
+          <div>
+            <div class="settings-label">Audio Feedback</div>
+            <div class="settings-desc">Let Buddy speak contextual comments</div>
+          </div>
+          <div class="toggle on" id="toggle-audio" onclick="toggleSetting('audio')"></div>
+        </div>
+        <div class="settings-row">
+          <div>
+            <div class="settings-label">Webcam Attention (Optional)</div>
+            <div class="settings-desc">Local face presence detection only</div>
+          </div>
+          <div class="toggle" id="toggle-webcam" onclick="toggleSetting('webcam')"></div>
+        </div>
+        <div class="settings-row">
+          <div>
+            <div class="settings-label">Memory Persistence</div>
+            <div class="settings-desc">Store patterns and milestones locally</div>
+          </div>
+          <div class="toggle on" id="toggle-memory" onclick="toggleSetting('memory')"></div>
+        </div>
+        <div class="settings-row">
+          <div>
+            <div class="settings-label">Break Reminders</div>
+            <div class="settings-desc">Remind to take breaks every 90 minutes</div>
+          </div>
+          <div class="toggle on" id="toggle-breaks" onclick="toggleSetting('breaks')"></div>
+        </div>
+        <div class="settings-row">
+          <div>
+            <div class="settings-label">Privacy Mode</div>
+            <div class="settings-desc">Never track sensitive apps (banking, passwords)</div>
+          </div>
+          <div class="toggle toggle-disabled on" id="toggle-privacy" onclick="toggleSetting('privacy')"></div>
+        </div>
+      </div>
+      <div class="card card-full">
+        <div class="section-label">Excluded Apps (Sensitive)</div>
+        <div class="excluded-apps-list" id="excluded-apps">
+          <span class="tag tag-red">1Password</span>
+          <span class="tag tag-red">Bitwarden</span>
+          <span class="tag tag-red">Chase Bank</span>
+          <span class="tag tag-red">Incognito</span>
+          <span class="tag tag-red">PayPal</span>
+        </div>
+        <div class="excluded-apps-desc">
+          🔒 These apps are never tracked. Tracking pauses automatically when any excluded app is in focus.
+        </div>
+      </div>
+      <div class="card card-full">
+        <div class="section-label">About DeskBuddy</div>
+        <div class="about-text">
+          <strong class="about-strong">DeskBuddy MVP v0.1</strong> — A privacy-first ambient AI desktop companion.<br>
+          All processing is 100% local. No data ever leaves your device.<br><br>
+          <span class="about-span">Built with care. Calm by design.</span>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- NOTIFICATION -->
+<div class="notif" id="notif">
+  <span class="notif-icon" id="notif-icon">💬</span>
+  <span id="notif-text">Hello!</span>
+</div>
+
+<script src="js/state.js"></script>
+<script src="js/memory.js"></script>
+<script src="js/focusengine.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
