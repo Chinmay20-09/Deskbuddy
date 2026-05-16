@@ -175,7 +175,7 @@ function toggleSetting(key) {
 
 
 function showPage(id) {
-  ['dash','focus','memory','settings'].forEach(p => {
+  ['dash','focus','memory','tasks','settings'].forEach(p => {
     document.getElementById('page-' + p).classList.toggle('active', p === id);
     document.getElementById('nav-' + p).classList.toggle('active', p === id);
   });

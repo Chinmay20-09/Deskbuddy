@@ -190,6 +190,125 @@
 
   /* CONTROLS */
   .control-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+  .task-header-row { align-items: center; justify-content: space-between; gap: 14px; margin-top: 10px; }
+  .task-input-wrap { flex: 1; min-width: 220px; }
+  .task-input {
+    width: 100%; padding: 12px 14px; border-radius: 14px;
+    border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.03);
+    color: var(--text); font-size: 14px; transition: all 0.2s ease;
+  }
+  .task-input:focus {
+    outline: none; border-color: rgba(124,111,247,0.45);
+    background: rgba(255,255,255,0.06);
+  }
+  .task-input::placeholder { color: var(--text3); }
+  .task-card /* TASK LIST CONTAINER */
+/* TASK LIST */
+.tasks-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 18px;
+}
+
+/* INDIVIDUAL TASK CARD */
+.task-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 16px;
+
+  background: linear-gradient(
+    180deg,
+    rgba(255,255,255,0.04),
+    rgba(255,255,255,0.01)
+  );
+
+  border: 1px solid rgba(255,255,255,0.08);
+
+  border-radius: 18px;
+
+  padding: 16px 18px;
+
+  box-shadow: 0 20px 50px rgba(0,0,0,0.14);
+
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.task-card:hover {
+  transform: translateY(-2px);
+
+  border-color: rgba(124,111,247,0.24);
+
+  box-shadow: 0 24px 60px rgba(0,0,0,0.2);
+}
+
+/* LEFT SIDE */
+.task-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
+  flex: 1;
+}
+
+/* CHECKBOX */
+.task-checkbox {
+  width: 18px;
+  height: 18px;
+
+  accent-color: #7c6ff7;
+
+  cursor: pointer;
+
+  flex-shrink: 0;
+}
+
+/* TITLE */
+.task-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+
+  line-height: 1.4;
+
+  word-break: break-word;
+}
+
+/* COMPLETED */
+.completed {
+  text-decoration: line-through;
+  opacity: 0.55;
+}
+
+/* DELETE BUTTON */
+.delete-btn {
+  background: rgba(248,113,113,0.08);
+
+  border: 1px solid rgba(248,113,113,0.15);
+
+  color: #ff8787;
+
+  padding: 8px 12px;
+
+  border-radius: 10px;
+
+  cursor: pointer;
+
+  transition: all 0.2s ease;
+
+  flex-shrink: 0;
+}
+
+.delete-btn:hover {
+  background: rgba(248,113,113,0.18);
+
+  transform: scale(1.03);
+}
   .btn {
     padding: 8px 16px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 500;
     border: 1px solid var(--border2); background: var(--surface2);

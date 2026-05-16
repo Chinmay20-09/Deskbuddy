@@ -100,10 +100,176 @@ function loadData() {
         S.settings = JSON.parse(savedSettings);
     }
 }
-Object.keys(S.settings).forEach(key => {
-    const el = document.getElementById('toggle-' + key);
+// Task Management
+const taskInput = document.getElementById("task-input");
+const addTaskBtn = document.getElementById("add-task-btn");
+const tasksList = document.getElementById("tasks-list");
 
-    if (el && S.settings[key]) {
-        el.classList.add('on');
-    }
+let tasks = JSON.parse(
+  localStorage.getItem("deskbuddy_tasks")
+) || [];
+
+// Render Tasks
+function renderTasks() {
+
+  tasksList.innerHTML = "";
+
+  // Empty State
+  if (tasks.length === 0) {
+
+    tasksList.innerHTML = `
+      <div class="task-card">
+        <div>
+          <div class="task-title">
+            No tasks yet — add some to get started!
+          </div>
+        </div>
+      </div>
+    `;
+
+    return;
+  }
+
+  // Render Tasks
+  tasks.forEach((task, index) => {
+
+    const taskCard = document.createElement("div");
+
+    taskCard.className = "task-card";
+
+    taskCard.innerHTML = `
+      <div class="task-left">
+
+        <input
+          type="checkbox"
+          class="task-checkbox"
+          ${task.completed ? "checked" : ""}
+        >
+
+        <div class="task-title ${task.completed ? "completed" : ""}">
+          ${task.title}
+        </div>
+
+      </div>
+
+      <button class="delete-btn">
+        Delete
+      </button>
+    `;
+
+    // Complete Task
+    const checkbox =
+      taskCard.querySelector(".task-checkbox");
+
+    checkbox.addEventListener("change", () => {
+
+      tasks[index].completed = checkbox.checked;
+
+      saveTasks();
+      renderTasks();
+    });
+
+    // Delete Task
+    const deleteBtn =
+      taskCard.querySelector(".delete-btn");
+
+    deleteBtn.addEventListener("click", () => {
+
+      tasks.splice(index, 1);
+
+      saveTasks();
+      renderTasks();
+    });
+
+    tasksList.appendChild(taskCard);
+  });
+}
+
+// Add Task
+addTaskBtn.addEventListener("click", () => {
+
+  const title = taskInput.value.trim();
+
+  if (!title) return;
+
+  tasks.push({
+    title,
+    completed: false
+  });
+
+  saveTasks();
+  renderTasks();
+
+  taskInput.value = "";
 });
+taskInput.addEventListener("keydown", (e) => {
+
+  if (e.key === "Enter") {
+
+    addTaskBtn.click();
+
+  }
+
+});
+// Save Tasks
+function saveTasks() {
+
+  localStorage.setItem(
+    "deskbuddy_tasks",
+    JSON.stringify(tasks)
+  );
+}
+
+// Initial Render
+renderTasks();
+
+//Timer
+function saveTimer() {
+
+  localStorage.setItem(
+    "deskbuddy_timer",
+
+    JSON.stringify({
+
+      active: S.pomodoroActive,
+
+      seconds: S.pomodoroSeconds,
+
+      total: S.pomodoroTotal,
+
+      session: S.sessionSeconds
+
+    })
+  );
+}
+
+function loadTimer() {
+
+  const savedTimer =
+    localStorage.getItem("deskbuddy_timer");
+
+  if (savedTimer) {
+
+    const t = JSON.parse(savedTimer);
+
+    S.pomodoroActive = t.active;
+
+    S.pomodoroSeconds = t.seconds;
+
+    S.pomodoroTotal = t.total;
+
+    S.sessionSeconds = t.session || 0;
+
+    updatePomodoroUI();
+  }
+}
+
+function renderTimer() {
+  const el = document.getElementById("pomodoro-timer");
+  if (!el) return;
+  const min = Math.floor(S.pomodoroSeconds / 60);
+  const sec = S.pomodoroSeconds % 60;
+  el.textContent = `${min}:${sec.toString().padStart(2, '0')}`;
+  saveTimer();
+} 
+renderTimer();

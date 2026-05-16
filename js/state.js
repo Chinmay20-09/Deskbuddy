@@ -80,5 +80,6 @@ const PAGE_META = {
   dash:     { title: 'Dashboard', sub: 'Your focus companion is watching' },
   focus:    { title: 'Focus Mode', sub: 'Track your deep work sessions' },
   memory:   { title: 'Memory', sub: 'What Buddy has learned about you' },
+  tasks:    { title: 'Tasks', sub: 'Plan today’s priority work' },
   settings: { title: 'Settings', sub: 'Configure your companion' },
 };

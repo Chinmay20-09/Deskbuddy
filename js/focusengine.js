@@ -1,6 +1,7 @@
 function tick() {
   S.sessionSeconds++;
   const activeApp = APPS.find(a => a.id === S.activeApp);
+  saveTimer();
 
   // Count focused/idle
   if (activeApp) {

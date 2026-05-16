@@ -1,6 +1,9 @@
 function init() {
-
     loadData();
+
+    loadTimer();
+
+    renderTimer();
 
     renderSettings();
 
@@ -9,7 +12,9 @@ function init() {
     renderAchievements();
 
     renderApps();
+
     renderWeeklyStreaks();
+
     renderFocusChart();
 
     setActiveApp('vscode');
@@ -17,9 +22,9 @@ function init() {
     tick();
 
     setInterval(tick, 1000);
+
     setInterval(updateFocusHistory, 10000);
 
     showPage('dash');
-
 }
 window.addEventListener('DOMContentLoaded', init);
