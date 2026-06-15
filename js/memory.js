@@ -12,7 +12,7 @@ function renderMemories() {
   const el = document.getElementById('memory-list');
   if (!el) return;
   if (!S.memories.length) {
-    el.innerHTML = '<div style="color:var(--text3);font-size:13px;padding:8px 0">No memories yet</div>';
+    el.innerHTML = '<div style="color:var(--text3);font-size:13px;padding:8px 0">Buddy will remember milestones from your sessions.</div>';
     return;
   }
   el.innerHTML = S.memories.map(m =>
@@ -54,51 +54,46 @@ function renderAchievements() {
 }
 //save data
 function saveData() {
-  
-
-    console.log("SAVE RUNNING");
-
-    localStorage.setItem(
-        "deskbuddy_memories",
-        JSON.stringify(S.memories)
-    );
-
-    localStorage.setItem(
-        "deskbuddy_achievements",
-        JSON.stringify(S.achievements)
-    );
-
-    localStorage.setItem(
-        "deskbuddy_settings",
-        JSON.stringify(S.settings)
-    );
-
+  try {
     localStorage.setItem("deskbuddy_memories", JSON.stringify(S.memories));
     localStorage.setItem("deskbuddy_achievements", JSON.stringify(S.achievements));
     localStorage.setItem("deskbuddy_settings", JSON.stringify(S.settings));
+    localStorage.setItem("deskbuddy_tasks", JSON.stringify(tasks));
+    localStorage.setItem("deskbuddy_timer", JSON.stringify({
+      active: S.pomodoroActive,
+      seconds: S.pomodoroSeconds,
+      total: S.pomodoroTotal,
+      session: S.sessionSeconds
+    }));
+    if (window.DAILY_SUMMARIES) localStorage.setItem('deskbuddy_summaries', JSON.stringify(window.DAILY_SUMMARIES));
+  } catch (e) {
+    console.warn('saveData failed', e);
+  }
 }
 function loadData() {
- console.log("data is loading");
-    const savedMemories =
-        localStorage.getItem("deskbuddy_memories");
+  const savedMemories = localStorage.getItem("deskbuddy_memories");
+  const savedAchievements = localStorage.getItem("deskbuddy_achievements");
+  const savedSettings = localStorage.getItem("deskbuddy_settings");
+  const savedTasks = localStorage.getItem("deskbuddy_tasks");
+  const savedTimer = localStorage.getItem("deskbuddy_timer");
+  const savedSummaries = localStorage.getItem('deskbuddy_summaries');
 
-    const savedAchievements =
-        localStorage.getItem("deskbuddy_achievements");
-
-    const savedSettings =
-        localStorage.getItem("deskbuddy_settings");
-
-    if (savedMemories) {
-        S.memories = JSON.parse(savedMemories);
-    }
-
-    if (savedAchievements) {
-        S.achievements = JSON.parse(savedAchievements);
-    }
-
-    if (savedSettings) {
-        S.settings = JSON.parse(savedSettings);
-    }
+  if (savedMemories) S.memories = JSON.parse(savedMemories);
+  if (savedAchievements) S.achievements = JSON.parse(savedAchievements);
+  if (savedSettings) S.settings = JSON.parse(savedSettings);
+  if (savedTasks) tasks = JSON.parse(savedTasks);
+  if (savedTimer) {
+    const t = JSON.parse(savedTimer);
+    S.pomodoroActive = t.active;
+    S.pomodoroSeconds = t.seconds;
+    S.pomodoroTotal = t.total;
+    S.sessionSeconds = t.session || 0;
+  }
+  if (savedSummaries) {
+    try { window.DAILY_SUMMARIES = JSON.parse(savedSummaries); } catch(e) { window.DAILY_SUMMARIES = {}; }
+  } else {
+    window.DAILY_SUMMARIES = {};
+  }
 }
 // Task Management
 const taskInput = document.getElementById("task-input");
@@ -111,78 +106,63 @@ let tasks = JSON.parse(
 
 // Render Tasks
 function renderTasks() {
-
   tasksList.innerHTML = "";
 
   // Empty State
   if (tasks.length === 0) {
-
     tasksList.innerHTML = `
       <div class="task-card">
         <div>
           <div class="task-title">
-            No tasks yet — add some to get started!
+            Your focus space is clean. Add your first task.
           </div>
         </div>
       </div>
     `;
-
+    updateTaskCounter();
     return;
   }
 
   // Render Tasks
   tasks.forEach((task, index) => {
-
     const taskCard = document.createElement("div");
-
     taskCard.className = "task-card";
-
     taskCard.innerHTML = `
       <div class="task-left">
-
-        <input
-          type="checkbox"
-          class="task-checkbox"
-          ${task.completed ? "checked" : ""}
-        >
-
-        <div class="task-title ${task.completed ? "completed" : ""}">
-          ${task.title}
-        </div>
-
+        <input type="checkbox" class="task-checkbox" ${task.completed ? "checked" : ""}>
+        <div class="task-title ${task.completed ? "completed" : ""}">${task.title}</div>
       </div>
-
-      <button class="delete-btn">
-        Delete
-      </button>
+      <button class="delete-btn">Delete</button>
     `;
 
     // Complete Task
-    const checkbox =
-      taskCard.querySelector(".task-checkbox");
-
+    const checkbox = taskCard.querySelector(".task-checkbox");
     checkbox.addEventListener("change", () => {
-
       tasks[index].completed = checkbox.checked;
-
-      saveTasks();
-      renderTasks();
+      if (checkbox.checked) {
+        taskCard.classList.add('task-complete-anim');
+        setTimeout(() => {
+          saveTasks();
+          addMemory('✅ Completed task: ' + tasks[index].title);
+          renderTasks();
+        }, 480);
+      } else {
+        saveTasks();
+        renderTasks();
+      }
     });
 
     // Delete Task
-    const deleteBtn =
-      taskCard.querySelector(".delete-btn");
-
+    const deleteBtn = taskCard.querySelector(".delete-btn");
     deleteBtn.addEventListener("click", () => {
-
       tasks.splice(index, 1);
-
       saveTasks();
       renderTasks();
     });
 
     tasksList.appendChild(taskCard);
   });
+  updateTaskCounter();
 }
 
 // Add Task
@@ -273,3 +253,28 @@ function renderTimer() {
   saveTimer();
 } 
 renderTimer();
+
+// Daily summaries helper
+function saveDailySummary(minutes, sessions) {
+  const d = new Date();
+  const key = d.toISOString().slice(0,10);
+  window.DAILY_SUMMARIES = window.DAILY_SUMMARIES || {};
+  const cur = window.DAILY_SUMMARIES[key] || { date: key, focusMinutes: 0, tasksCompleted: 0, sessions: 0 };
+  cur.focusMinutes = (cur.focusMinutes || 0) + (minutes || 0);
+  cur.sessions = (cur.sessions || 0) + (sessions || 0);
+  cur.tasksCompleted = tasks.filter(t => t.completed).length;
+  window.DAILY_SUMMARIES[key] = cur;
+  try { localStorage.setItem('deskbuddy_summaries', JSON.stringify(window.DAILY_SUMMARIES)); } catch(e) {}
+}
+
+function getSummaries() {
+  return window.DAILY_SUMMARIES || {};
+}
+
+function updateTaskCounter() {
+  const el = document.getElementById('tasks-counter');
+  if (!el) return;
+  const total = tasks.length;
+  const done = tasks.filter(t => t.completed).length;
+  el.textContent = `${done} / ${total} tasks completed`;
+}

@@ -12,7 +12,7 @@
     --border: rgba(255,255,255,0.07);
     --border2: rgba(255,255,255,0.12);
     --text: #f0eff8;
-    --text2: #9896a8;
+    --text2: #cfcbe0; /* brighter for better contrast */
     --text3: #5e5c70;
     --accent: #7c6ff7;
     --accent2: #5b52d4;
@@ -237,6 +237,26 @@
     transform 0.2s ease,
     border-color 0.2s ease,
     box-shadow 0.2s ease;
+}
+
+/* completed task animation: fade + slide */
+.task-complete-anim {
+  animation: taskComplete 520ms ease forwards;
+}
+@keyframes taskComplete {
+  0% { opacity: 1; transform: translateX(0); }
+  100% { opacity: 0; transform: translateX(12px) translateY(-6px); height: 0; margin: 0; padding: 0; }
+}
+
+/* Mobile adjustments */
+@media (max-width: 640px) {
+  .app { grid-template-columns: 56px 1fr; }
+  .header { padding: 16px 16px 0; }
+  .header-right { flex-wrap: wrap; gap: 8px; }
+  .tag { padding: 4px 8px; font-size: 11px; }
+  .grid { padding: 12px 16px 20px; grid-template-columns: 1fr; }
+  .card { padding: 14px; border-radius: 12px; }
+  .task-card { padding: 12px 14px; gap: 10px; }
 }
 
 .task-card:hover {

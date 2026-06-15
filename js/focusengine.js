@@ -84,13 +84,48 @@ function updateFocusHistory() {
   renderFocusChart();
 }
 // ── POMODORO ──────────────────────────────────────────────
+function showPomControlsState(state) {
+  const start = document.getElementById('btn-start');
+  const pause = document.getElementById('btn-pause');
+  const reset = document.getElementById('btn-reset');
+  if (!start || !pause || !reset) return;
+  if (state === 'idle') {
+    start.style.display = '';
+    pause.style.display = 'none';
+    reset.style.display = 'none';
+  } else if (state === 'running') {
+    start.style.display = 'none';
+    pause.style.display = '';
+    reset.style.display = '';
+  } else if (state === 'paused') {
+    start.style.display = '';
+    pause.style.display = 'none';
+    reset.style.display = '';
+  }
+}
+
 function startPomodoro() {
   if (S.pomodoroActive) return;
+  const isFresh = S.pomodoroSeconds === S.pomodoroTotal;
   S.pomodoroActive = true;
-  S.totalSessions++;
-  showNotif('⏱', 'Focus session started! 25 minutes.');
-  document.getElementById('timer-label').textContent = 'Focus in progress…';
-  addMemory('⏱ Started a Pomodoro session');
+  if (isFresh) {
+    S.totalSessions++;
+    showNotif('⏱', 'Focus session started! 25 minutes.');
+    addMemory('⏱ Started a Pomodoro session');
+    document.getElementById('timer-label').textContent = 'Focus in progress…';
+  } else {
+    showNotif('▶', 'Resumed Pomodoro');
+    document.getElementById('timer-label').textContent = 'Resumed…';
+  }
+  showPomControlsState('running');
+}
+
+function pausePomodoro() {
+  if (!S.pomodoroActive) return;
+  S.pomodoroActive = false;
+  document.getElementById('timer-label').textContent = 'Paused';
+  showNotif('⏸', 'Pomodoro paused');
+  showPomControlsState('paused');
 }
 
 function resetPomodoro() {
@@ -99,7 +134,8 @@ function resetPomodoro() {
   S.pomodoroTotal = 25 * 60;
   document.getElementById('timer-display').textContent = '25:00';
   document.getElementById('timer-label').textContent = 'Pomodoro ready';
-  document.getElementById('pomodoro-bar').style.width = '0%';
+  const bar = document.getElementById('pomodoro-bar'); if (bar) bar.style.width = '0%';
+  showPomControlsState('idle');
 }
 
 function finishPomodoro() {
@@ -113,6 +149,15 @@ function finishPomodoro() {
     document.getElementById('pomodoro-bar').style.width = '0%';
   }, 2000);
   speakBuddy('Great work! You completed a full focus session.');
+  // persist summary for charts and history
+  try {
+    saveDailySummary(25, 1);
+  } catch (e) { /* ignore if helper not present */ }
+  // lightweight session summary including tasks completed
+  try {
+    const done = (typeof tasks !== 'undefined') ? tasks.filter(t => t.completed).length : 0;
+    showNotif('📊', `Focused for 25 minutes — ${done} tasks completed`);
+  } catch(e) {}
 }
 
 function updatePomodoroUI() {

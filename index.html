@@ -140,9 +140,9 @@
             <div class="timer-display" id="timer-display">25:00</div>
             <div class="timer-label" id="timer-label">Pomodoro ready</div>
           </div>
-          <div class="control-row">
-            <button class="btn btn-accent" onclick="startPomodoro()">▶ Start Focus</button>
-            <button class="btn" onclick="resetPomodoro()">↺ Reset</button>
+            <button class="btn btn-accent" id="btn-start" onclick="startPomodoro()">▶ Start Focus</button>
+            <button class="btn btn-amber" id="btn-pause" onclick="pausePomodoro()" style="display:none">⏸ Pause</button>
+            <button class="btn" id="btn-reset" onclick="resetPomodoro()" style="display:none">↺ Reset</button>
           </div>
         </div>
         <div class="focus-bar-track focus-bar-track-small">
@@ -183,7 +183,7 @@
     </div>
 
 <!-- Task Page -->
-<div class="page grid" id="page-tasks">
+    <div class="page grid" id="page-tasks">
 
   <!-- Main Task Card -->
   <div class="card card-full">
@@ -217,6 +217,8 @@
   <div class="card card-lg">
 
     <div class="section-label">Today's Focus Plan</div>
+
+    <div id="tasks-counter" style="color:var(--text2);font-size:13px;margin-bottom:10px">0 / 0 tasks completed</div>
 
     <div class="task-summary">
 
